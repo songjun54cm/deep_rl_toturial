@@ -21,3 +21,4 @@ apt install python3-opengl
 apt install ffmpeg
 apt install xvfb
 pip3 install pyvirtualdisplay
+pip install shimmy

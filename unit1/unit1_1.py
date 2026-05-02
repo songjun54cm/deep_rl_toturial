@@ -5,6 +5,7 @@
 # !apt install ffmpeg
 # !apt install xvfb
 # !pip3 install pyvirtualdisplay
+# !pip install shimmy
 
 import gymnasium as gym
 from huggingface_hub import notebook_login
@@ -14,7 +15,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 
 virtual_display = Display(visible=False, size=(1400, 900))
 virtual_display.start()
@@ -50,7 +51,10 @@ for _ in range(20):
 env.close()
 
 # Create the environment
-env = make_vec_env("LunarLander-v3", n_envs=16)
+env_name = "LunarLander-v3"
+# env = make_vec_env(env_name, n_envs=16)
+env = make_vec_env(env_name, n_envs=16, seed=0, vec_env_cls=SubprocVecEnv)
+
 
 # We added some parameters to accelerate the training
 model = PPO(
@@ -66,8 +70,8 @@ model = PPO(
 )
 
 
-# Train it for 1,000,000 timesteps
-model.learn(total_timesteps=1000000)
+# Train it for 2,000,000 timesteps
+model.learn(total_timesteps=2000000, progress_bar=True)
 # Save the model
 model_name = "ppo-LunarLander-v3"
 model.save(model_name)
