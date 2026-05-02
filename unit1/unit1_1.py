@@ -7,6 +7,7 @@
 # !pip3 install pyvirtualdisplay
 # !pip install shimmy
 
+
 import gymnasium as gym
 from huggingface_hub import notebook_login
 from huggingface_sb3 import package_to_hub
@@ -20,43 +21,9 @@ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 virtual_display = Display(visible=False, size=(1400, 900))
 virtual_display.start()
 
-# First, we create our environment called LunarLander-v2
-env = gym.make("LunarLander-v3")
-print("_____OBSERVATION SPACE_____ \n")
-print("Observation Space Shape", env.observation_space.shape)
-print("Sample observation", env.observation_space.sample())  # Get a random observation
-
-print("\n _____ACTION SPACE_____ \n")
-print("Action Space Shape", env.action_space.n)
-print("Action Space Sample", env.action_space.sample())  # Take a random action
-
-# Then we reset this environment
-observation, info = env.reset()
-
-for _ in range(20):
-    # Take a random action
-    action = env.action_space.sample()
-    print("Action taken:", action)
-
-    # Do this action in the environment and get
-    # next_state, reward, terminated, truncated and info
-    observation, reward, terminated, truncated, info = env.step(action)
-
-    # If the game is terminated (in our case we land, crashed) or truncated (timeout)
-    if terminated or truncated:
-        # Reset the environment
-        print("Environment is reset")
-        observation, info = env.reset()
-
-env.close()
-
-# Create the environment
 env_name = "LunarLander-v3"
-# env = make_vec_env(env_name, n_envs=16)
 env = make_vec_env(env_name, n_envs=16, seed=0, vec_env_cls=SubprocVecEnv)
 
-
-# We added some parameters to accelerate the training
 model = PPO(
     policy="MlpPolicy",
     env=env,
@@ -69,13 +36,11 @@ model = PPO(
     verbose=1,
 )
 
-
 # Train it for 2,000,000 timesteps
 model.learn(total_timesteps=2000000, progress_bar=True)
 # Save the model
 model_name = "ppo-LunarLander-v3"
 model.save(model_name)
-
 
 eval_env = Monitor(gym.make("LunarLander-v3", render_mode="rgb_array"))
 mean_reward, std_reward = evaluate_policy(
